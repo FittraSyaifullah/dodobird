@@ -1,0 +1,30 @@
+#!/bin/sh
+# dodobird one-liner installer
+# curl -fsSL https://raw.githubusercontent.com/yourusername/dodobird/main/install.sh | sh
+
+set -e
+
+echo "🐦 dodobird installer"
+echo ""
+
+# Check for node
+if ! command -v node >/dev/null 2>&1; then
+  echo "✗ Node.js not found. Install from https://nodejs.org then re-run."
+  exit 1
+fi
+
+# Check for npm
+if ! command -v npm >/dev/null 2>&1; then
+  echo "✗ npm not found. Install from https://nodejs.org then re-run."
+  exit 1
+fi
+
+echo "Installing dodobird globally via npm..."
+npm install -g dodobird
+
+echo ""
+echo "Running: dodobird install"
+dodobird install
+
+echo ""
+echo " dodobird installed. Fewer tokens. Same meaning. Always."
