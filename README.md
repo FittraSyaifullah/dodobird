@@ -1,4 +1,4 @@
-<img width="500" height="500" alt="image" src="https://github.com/user-attachments/assets/f5b3ed63-67c0-416c-93de-109d50ea2c26" /># dodobird !
+<img width="250" height="250" alt="image" src="https://github.com/user-attachments/assets/f5b3ed63-67c0-416c-93de-109d50ea2c26" /># dodobird !
 
 
 
