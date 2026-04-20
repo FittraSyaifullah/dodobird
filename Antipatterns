@@ -1,0 +1,149 @@
+# dodobird — Token Antipatterns
+
+Full catalog of patterns that waste tokens, with minimal rewrites.
+
+---
+
+## Category 1: Opening Filler
+
+These lines add zero information. Delete entirely.
+
+```
+❌ Sure! Happy to help.
+❌ Great question! Let me explain.
+❌ Absolutely, I can do that.
+❌ Of course! Here's what I'd suggest.
+❌ Let me help you with that.
+✅ (nothing — go straight to the answer)
+```
+
+---
+
+## Category 2: Restatement
+
+Never restate the user's request back to them.
+
+```
+❌ "So you want to refactor the auth middleware to use JWT..."
+❌ "You're asking about the difference between X and Y..."
+✅ (start with the answer)
+```
+
+---
+
+## Category 3: Hedging Bloat
+
+Replace hedge phrases with tight signals.
+
+```
+❌ "It's worth noting that..."          → "Note:"
+❌ "You might want to consider..."      → "Consider:"
+❌ "One thing to keep in mind is..."    → "⚠️" or "Note:"
+❌ "Generally speaking, it tends to..." → (state it directly)
+❌ "In most cases you would..."         → (state the case)
+```
+
+---
+
+## Category 4: Connector Bloat
+
+```
+❌ "In order to"        → "To"
+❌ "Due to the fact that" → "Because"
+❌ "At this point in time" → "Now"
+❌ "It is important to note" → "Note:" or (delete)
+❌ "Basically"          → (delete)
+❌ "Essentially"        → (delete)
+❌ "Fundamentally"      → (delete)
+❌ "It should be noted" → (delete or "Note:")
+❌ "As you can see"     → (delete)
+❌ "Needless to say"    → (delete — if needless, don't say)
+```
+
+---
+
+## Category 5: Closing Filler
+
+Never end with these.
+
+```
+❌ "Let me know if you have any questions!"
+❌ "Feel free to reach out if you need more help."
+❌ "Hope that helps!"
+❌ "Let me know if you'd like me to elaborate."
+❌ "Happy to clarify anything."
+✅ (nothing — end on the last meaningful token)
+```
+
+---
+
+## Category 6: Over-explained Code
+
+```
+❌
+"Here's the updated handleAuth function. I've added a try/catch block 
+to handle errors gracefully, and updated the response to use a 401 
+status code instead of 500 for unauthorized access:"
+
+```js
+function handleAuth(req, res) { ... }
+```
+
+✅
+```js
+function handleAuth(req, res) { ... }
+```
+```
+
+Let the code speak. The diff is self-evident.
+
+---
+
+## Category 7: Redundant Emphasis
+
+```
+❌ "This is really, really important:"
+❌ "I cannot stress this enough:"
+❌ "This is absolutely critical:"
+✅ "⚠️ Critical:" or just state it plainly
+```
+
+---
+
+## Category 8: Verbose Error Explanations
+
+```
+❌ "The reason you're seeing this error is because the function is 
+receiving a null value when it expects an object. This happens when 
+the API call fails to return data, which can occur if..."
+
+✅ Cause: null passed to fn expecting object. API call failing.
+   Fix: add null check before calling fn.
+```
+
+---
+
+## Category 9: Unnecessary Meta-commentary
+
+```
+❌ "I'll now walk you through the solution step by step."
+❌ "Let me break this down for you."
+❌ "Here's a clear explanation:"
+❌ "To summarize what we just did:"
+✅ (just do the thing)
+```
+
+---
+
+## Category 10: Padding in Lists
+
+```
+❌
+1. First, you'll want to make sure that you install the dependencies 
+   by running the package manager command.
+2. Next, you should proceed to configure your environment variables.
+
+✅
+1. Install deps: `npm install`
+2. Set env vars (see .env.example)
+```
