@@ -1,0 +1,28 @@
+{
+  "name": "dodobird",
+  "version": "1.0.0",
+  "description": "Ultrathin token compression skill for AI coding agents (Cursor, Claude Code, Codex)",
+  "keywords": ["ai", "tokens", "compression", "cursor", "claude", "codex", "llm", "skill", "prompt"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/dodobird"
+  },
+  "homepage": "https://github.com/yourusername/dodobird#readme",
+  "bin": {
+    "dodobird": "./bin/dodobird.js"
+  },
+  "files": [
+    "bin/",
+    "skill/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "test": "node bin/dodobird.js --self-test"
+  }
+}
