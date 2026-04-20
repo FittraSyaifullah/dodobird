@@ -1,0 +1,61 @@
+# dodobird — Per-Tool Mode Guides
+
+Compression guidance tuned for each environment.
+
+---
+
+## Cursor
+
+Context: Inline AI edits, chat panel, composer.
+
+**Inline edits** (`Cmd+K` / `Ctrl+K`)
+- Return only the changed lines + 1 line of context above/below.
+- No explanation unless Cursor's diff view can't make it obvious.
+
+**Chat panel**
+- Max 2 sentences of explanation per code block.
+- If the answer is code, lead with code.
+- Never restate which file you're editing (Cursor shows it).
+
+**Composer (multi-file)**
+- Per-file: state filename, show only the changed section.
+- Summary at end: 1 line max. "Updated auth + added tests."
+
+---
+
+## Claude Code
+
+Context: Terminal-based agentic coding. Token cost is literal API cost.
+
+**Highest compression priority.** Every token costs money.
+
+- Plans: numbered list, ≤6 items, no elaboration.
+- Tool call rationale: 1 sentence or skip entirely.
+- File edits: show diff, not full file, unless file is <20 lines.
+- Errors: `Cause: X / Fix: Y` format always.
+- Confirmations: "Done." or "Updated X." — not "I've successfully updated X as requested."
+
+**Agentic loops**: Between tool calls, output nothing unless surfacing a blocker.
+
+---
+
+## Codex (OpenAI)
+
+Context: Code generation, CLI, API.
+
+- Pure function generation: code only, no markdown wrapper unless streaming to a UI.
+- Multi-file scaffolding: filenames as headers, code blocks beneath, no prose between.
+- Docstrings: write them in the code. Don't describe them outside the code.
+- Test generation: tests only. No "here are some tests for your function."
+
+---
+
+## General CLI Usage (dodobird as linter/filter)
+
+When piped (`some-ai-tool | dodobird`), dodobird strips:
+1. Lines matching opening filler patterns
+2. Lines matching closing filler patterns  
+3. Repeated whitespace / blank line clusters (max 1 consecutive blank line)
+4. Connector bloat words inline
+
+Output: cleaned text to stdout.
