@@ -1,0 +1,221 @@
+#!/usr/bin/env node
+
+/**
+ * dodobird 🐦
+ * Ultrathin token compression skill installer for AI coding agents.
+ * Usage:
+ *   dodobird install          — install skill to detected tools
+ *   dodobird install cursor   — install to Cursor only
+ *   dodobird install claude   — install to Claude Code only
+ *   dodobird install codex    — install to Codex CLI only
+ *   dodobird list             — show install locations
+ *   dodobird --help           — show help
+ */
+
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+
+const HOME = os.homedir();
+const SKILL_DIR = path.join(__dirname, "..", "skill");
+
+const SKILL_MD = fs.readFileSync(path.join(SKILL_DIR, "SKILL.md"), "utf8");
+const ANTIPATTERNS = fs.readFileSync(
+  path.join(SKILL_DIR, "references", "antipatterns.md"),
+  "utf8"
+);
+const MODE_GUIDES = fs.readFileSync(
+  path.join(SKILL_DIR, "references", "mode-guides.md"),
+  "utf8"
+);
+
+// ─── Install targets ──────────────────────────────────────────────────────────
+
+const TARGETS = {
+  cursor: {
+    name: "Cursor",
+    paths: [
+      path.join(HOME, ".cursor", "rules"),
+      path.join(process.cwd(), ".cursor", "rules"),
+    ],
+    filename: "dodobird.mdc",
+    format: "cursor",
+  },
+  claude: {
+    name: "Claude Code",
+    paths: [
+      path.join(HOME, ".claude", "skills"),
+      path.join(process.cwd(), ".claude"),
+    ],
+    filename: "DODOBIRD.md",
+    format: "markdown",
+  },
+  codex: {
+    name: "Codex CLI",
+    paths: [
+      path.join(HOME, ".codex", "instructions"),
+      path.join(process.cwd(), ".codex"),
+    ],
+    filename: "dodobird.md",
+    format: "markdown",
+  },
+};
+
+// ─── Format renderers ─────────────────────────────────────────────────────────
+
+function renderCursor(skill, antipatterns, modeGuides) {
+  return `---
+description: dodobird — ultrathin token compression. Active on all responses.
+globs: ["**/*"]
+alwaysApply: true
+---
+
+${skill}
+
+---
+
+${antipatterns}
+
+---
+
+${modeGuides}
+`;
+}
+
+function renderMarkdown(skill, antipatterns, modeGuides) {
+  return `${skill}
+
+---
+
+${antipatterns}
+
+---
+
+${modeGuides}
+`;
+}
+
+// ─── Install logic ────────────────────────────────────────────────────────────
+
+function install(targetKey) {
+  const target = TARGETS[targetKey];
+  if (!target) {
+    console.error(`Unknown target: ${targetKey}`);
+    console.error(`Valid targets: ${Object.keys(TARGETS).join(", ")}`);
+    process.exit(1);
+  }
+
+  const content =
+    target.format === "cursor"
+      ? renderCursor(SKILL_MD, ANTIPATTERNS, MODE_GUIDES)
+      : renderMarkdown(SKILL_MD, ANTIPATTERNS, MODE_GUIDES);
+
+  let installed = false;
+
+  for (const dir of target.paths) {
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      const dest = path.join(dir, target.filename);
+      fs.writeFileSync(dest, content, "utf8");
+      console.log(`✓ ${target.name}: installed → ${dest}`);
+      installed = true;
+      break;
+    } catch (err) {
+      // try next path
+    }
+  }
+
+  if (!installed) {
+    // Fallback: write to cwd
+    const dest = path.join(process.cwd(), target.filename);
+    fs.writeFileSync(dest, content, "utf8");
+    console.log(`✓ ${target.name}: installed → ${dest} (cwd fallback)`);
+  }
+}
+
+function installAll() {
+  console.log("🐦 dodobird — installing token compression skill\n");
+  for (const key of Object.keys(TARGETS)) {
+    install(key);
+  }
+  console.log("\nDone. Fewer tokens. Same meaning. Always.");
+}
+
+function showList() {
+  console.log("🐦 dodobird install locations:\n");
+  for (const [key, target] of Object.entries(TARGETS)) {
+    console.log(`  ${target.name} (${key})`);
+    for (const p of target.paths) {
+      const full = path.join(p, target.filename);
+      const exists = fs.existsSync(full) ? "✓ installed" : "  not found";
+      console.log(`    ${exists}: ${full}`);
+    }
+  }
+}
+
+function showHelp() {
+  console.log(`
+🐦 dodobird — ultrathin token compression for AI coding agents
+
+USAGE
+  dodobird install           Install to all detected tools
+  dodobird install cursor    Install to Cursor only
+  dodobird install claude    Install to Claude Code only
+  dodobird install codex     Install to Codex CLI only
+  dodobird list              Show install status
+  dodobird --help            Show this help
+
+WHAT IT DOES
+  Installs a compression skill that instructs AI agents to strip filler,
+  preamble, restatements, and closing pleasantries from every response.
+  Maximum meaning per token. Nothing extraneous survives.
+
+OPEN SOURCE
+  https://github.com/yourusername/dodobird
+  MIT License
+`);
+}
+
+// ─── Self-test ────────────────────────────────────────────────────────────────
+
+function selfTest() {
+  console.log("🐦 dodobird self-test\n");
+  const checks = [
+    ["SKILL.md readable", SKILL_MD.length > 100],
+    ["antipatterns.md readable", ANTIPATTERNS.length > 100],
+    ["mode-guides.md readable", MODE_GUIDES.length > 100],
+    ["Cursor render works", renderCursor(SKILL_MD, ANTIPATTERNS, MODE_GUIDES).includes("alwaysApply")],
+    ["Markdown render works", renderMarkdown(SKILL_MD, ANTIPATTERNS, MODE_GUIDES).includes("dodobird")],
+  ];
+  let pass = 0;
+  for (const [name, result] of checks) {
+    console.log(`  ${result ? "✓" : "✗"} ${name}`);
+    if (result) pass++;
+  }
+  console.log(`\n${pass}/${checks.length} passed`);
+  process.exit(pass === checks.length ? 0 : 1);
+}
+
+// ─── CLI entry ────────────────────────────────────────────────────────────────
+
+const args = process.argv.slice(2);
+const cmd = args[0];
+
+if (!cmd || cmd === "--help" || cmd === "-h") {
+  showHelp();
+} else if (cmd === "install") {
+  const target = args[1];
+  if (target) {
+    install(target);
+  } else {
+    installAll();
+  }
+} else if (cmd === "list") {
+  showList();
+} else if (cmd === "--self-test") {
+  selfTest();
+} else {
+  console.error(`Unknown command: ${cmd}`);
+  showHelp();
+  process.exit(1);
+}
